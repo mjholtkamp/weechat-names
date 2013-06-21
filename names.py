@@ -1,3 +1,27 @@
+# Copyright (C) 2013 Michiel Holtkamp <weechat@elfstone.nl>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+# Show nicks in columns.
+#
+# Usage: /na
+#
+# History:
+# 2013-06-22, Michiel Holtkamp <weechat@elfstone.nl>:
+#     version 1.0: initial release
+#
 import math
 import time
 import weechat
@@ -17,9 +41,6 @@ def names_command_cb(data, buffer, args):
 	server = weechat.buffer_get_string(buffer, "localvar_server")
 	channel = weechat.buffer_get_string(buffer, "localvar_channel")
 	infolist = weechat.infolist_get("irc_nick", "", "%s,%s" % (server, channel))
-#	prefixmaxlen = weechat.buffer_get_integer(buffer, "prefix_max_length")
-#	max_linelen = max_linelen - (prefixmaxlen + 4)
-
 	if infolist:
 		nicks = []
 		maxlen = 0
@@ -43,12 +64,15 @@ def names_command_cb(data, buffer, args):
 		reset = weechat.color("reset")
 
 		fmt = "{}[{}{}{}{}{: <%d}{}]{} " % maxlen
-		timefmt = weechat.config_string(weechat.config_get("weechat.look.buffer_time_format"))
+		timefmt = weechat.config_string(
+					weechat.config_get("weechat.look.buffer_time_format"))
 		formatted = "{} ".format(time.strftime(timefmt))
 		list_prefix = " " * len(formatted)
 
 		# now that we have all information, print it
-		weechat.prnt(buffer, "{}{}[{}Users {}{}{}]{}".format(prefix, bracket, title, bold, channel, bracket, reset))
+		weechat.prnt(buffer, "{}{}[{}Users {}{}{}]{}".format(
+				prefix, bracket, title, bold, channel, bracket, reset))
+
 		for row in xrange(rows):
 			line = "\t\t%s" % list_prefix
 			for col in xrange(nicks_per_line):
@@ -56,13 +80,21 @@ def names_command_cb(data, buffer, args):
 					nick = nicks[col * rows + row]
 				except IndexError:
 					break
-				line += fmt.format(bracket, reset, bold, nick[0], reset, nick[1], bracket, reset)
+				line += fmt.format(bracket, reset, bold, nick[0], reset,
+									nick[1], bracket, reset)
 			weechat.prnt(buffer, line)
-		weechat.prnt(buffer, "{}{}{}{}: {}{}{} nicks ({}{}{} ops, {}{}{} halfops, {}{}{} voices, {}{}{} normals)".format(prefix, bold, channel, reset, bold, len(nicks), reset, bold, modes['@'], reset, bold, modes['%'], reset, bold, modes['+'], reset, bold,  modes[' '], reset))
+		
+		weechat.prnt(buffer,
+			"{}{}{}{}: {}{}{} nicks ({}{}{} ops, {}{}{} halfops, {}{}{} voices, {}{}{} normals)".format(
+				prefix, bold, channel, reset, bold, len(nicks), reset,
+				bold, modes['@'], reset, bold, modes['%'], reset,
+				bold, modes['+'], reset, bold, modes[' '], reset
+			)
+		)
 
 	return weechat.WEECHAT_RC_OK
 
-weechat.register("names", "sabre2th", "1.0", "GPL3", "Names script", "", "")
+weechat.register("names", "Michiel Holtkamp", "1.0", "GPL3", "Names script", "", "")
 weechat.hook_command("na", "Show nicks in columns instead of a list",
 	"",
 	"",
