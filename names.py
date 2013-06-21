@@ -30,11 +30,18 @@ def names_command_cb(data, buffer, args):
 		weechat.infolist_free(infolist)
 
 		nicks.sort(cmp_nick)
-		fmt = "[{}{: <%d}] " % maxlen
 		nicks_per_line = max_linelen // (maxlen + 4) # +prefix +[] +space
 		rows = int(math.ceil(float(len(nicks)) / nicks_per_line))
 
+		bracket = weechat.color("black")
+		title = weechat.color("green")
+		bold = weechat.color("bold")
+		reset = weechat.color("reset")
+
+		fmt = "{}[{}{}{}{}{: <%d}{}]{} " % maxlen
+
 		# now that we have all information, print it
+		weechat.prnt(buffer, "{}[{}Users {}{}{}]{}".format(bracket, title, bold, channel, bracket, reset))
 		for row in xrange(rows):
 			line = ""
 			for col in xrange(nicks_per_line):
@@ -42,7 +49,7 @@ def names_command_cb(data, buffer, args):
 					nick = nicks[col * rows + row]
 				except IndexError:
 					break
-				line += fmt.format(nick[0], nick[1])
+				line += fmt.format(bracket, reset, bold, nick[0], reset, nick[1], bracket, reset)
 			weechat.prnt(buffer, line)
 
 	return weechat.WEECHAT_RC_OK
